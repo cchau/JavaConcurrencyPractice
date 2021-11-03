@@ -21,6 +21,18 @@ class ListNode {
     }
 }
 
+class Node {
+    int val;
+    Node next;
+    Node random;
+
+    public Node(int val) {
+        this.val = val;
+        this.next = null;
+        this.random = null;
+    }
+}
+
 
 public class LinkedListUtil {
     public ListNode reverseList(ListNode head) {
@@ -142,9 +154,9 @@ public class LinkedListUtil {
         return result;
     }
 
-    public boolean canMoveForward(ListNode[] lists){
+    public boolean canMoveForward(ListNode[] lists) {
         for (ListNode head : lists) {
-            if (head != null){
+            if (head != null) {
                 return true;
             }
 
@@ -152,17 +164,17 @@ public class LinkedListUtil {
         return false;
     }
 
-    public int findMinNode(ListNode[] lists){
+    public int findMinNode(ListNode[] lists) {
         int minValue = Integer.MAX_VALUE;
         int minNodeIndex = 0;
         for (int i = 0; i < lists.length; i++) {
-            if(lists[i] != null && lists[i].val <= minValue){
+            if (lists[i] != null && lists[i].val <= minValue) {
                 minValue = lists[i].val;
                 minNodeIndex = i;
             }
         }
 
-        return  minNodeIndex;
+        return minNodeIndex;
     }
 
     public ListNode mergeKLists(ListNode[] lists) {
@@ -187,7 +199,6 @@ public class LinkedListUtil {
     }
 
 
-
     public boolean hasCycle(ListNode head) {
 
         ListNode current = head;
@@ -206,6 +217,76 @@ public class LinkedListUtil {
 
         return hasCycle;
 
+    }
+
+    public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+        int lengthA = getListNodeLength(headA);
+        int lengthB = getListNodeLength(headB);
+
+        int skipA = (lengthA - lengthB) > 0 ? lengthA - lengthB : 0;
+        int skipB = (lengthB - lengthA) > 0 ? lengthB - lengthA : 0;
+
+        ListNode currentA = skipNodes(headA, skipA);
+        ListNode currentB = skipNodes(headB, skipB);
+
+        ListNode intersect = null;
+        while (currentA != null && currentB != null) {
+            if (currentA == currentB) {
+                intersect = currentA;
+                break;
+            }
+            currentA = currentA.next;
+            currentB = currentB.next;
+        }
+
+        return intersect;
+
+    }
+
+    public ListNode skipNodes(ListNode head, int skip) {
+        ListNode current = head;
+        for (int i = 0; i < skip; i++) {
+            current = current.next;
+        }
+
+        return current;
+    }
+
+    public int getListNodeLength(ListNode head) {
+        ListNode current = head;
+        int length = 0;
+
+        while (current != null) {
+            length++;
+            current = current.next;
+        }
+
+        return length;
+    }
+
+    public Node copyRandomList(Node head) {
+
+        Map<Node, Node> nodeMap = new HashMap<>();
+        Node current = head;
+        Node prevNewHead = new Node(-1);
+        Node newCurrent = prevNewHead;
+
+        while (current != null) {
+            newCurrent.next = new Node(current.val);
+            newCurrent.next.random = current.random;
+            nodeMap.put(current, newCurrent.next);
+
+            current = current.next;
+            newCurrent = newCurrent.next;
+        }
+
+        newCurrent = prevNewHead.next;
+        while (newCurrent != null) {
+            newCurrent.random = nodeMap.get(newCurrent.random);
+            newCurrent = newCurrent.next;
+        }
+
+        return prevNewHead.next;
     }
 
     public static void main(String[] args) {
@@ -260,6 +341,37 @@ public class LinkedListUtil {
         ListNode[] lists = new ListNode[]{l1K, l2K, l3K};
         util.mergeKLists(lists);
 
+        ListNode listIntersection = new ListNode(8,
+                new ListNode(4, new ListNode(5)));
+
+        ListNode listA = new ListNode(4,
+                new ListNode(1, listIntersection));
+
+        ListNode listB = new ListNode(5,
+                new ListNode(6, new ListNode(1, listIntersection)));
+
+
+        ListNode intersect = util.getIntersectionNode(listA, listB);
+
+        Node node7 = new Node(7);
+        Node node13 = new Node(13);
+        Node node11 = new Node(11);
+        Node node10 = new Node(10);
+        Node node1 = new Node(1);
+
+        node7.next = node13;
+        node13.next = node11;
+        node11.next = node10;
+        node10.next = node1;
+
+        node13.random = node7;
+        node1.random = node7;
+        node10.random = node11;
+        node11.random = node1;
+
+        Node randomHead = node7;
+
+        Node copiedHead = util.copyRandomList(randomHead);
 
         System.out.println("End!");
 
